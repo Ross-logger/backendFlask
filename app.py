@@ -8,8 +8,10 @@ app = Flask(__name__)
 @app.route('/menu')
 def menu():
     s = ""
+    s+="<ul>\n"
     s += "<li id=tasks><a href=/task1/random/>/task1/random/</a></li>\n"
-    s += '<li id=tasks><a href=/task1/i_will_not/>/task1/i_will_not/</a></li>'
+    s += '<li id=tasks><a href=/task1/i_will_not/>/task1/i_will_not/</a></li>\n'
+    s+="</ul>"
     return s
 
 
@@ -22,8 +24,10 @@ def random():
 @app.route('/task1/i_will_not/')
 def iwont():
     s = ""
+    s += "<ul>\n"
     for i in range(100):
         s += "<li id=blackboard>I will not waste time</li>\n"
+    s += "</ul>"
     return s
 
 
