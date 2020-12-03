@@ -8,7 +8,7 @@ app = Flask(__name__)
 @app.route('/menu')
 def menu():
     s = ""
-    s += "<ul id=tasks>\n"
+    s += "<ul id=menu>\n"
     s += "<li><a href=/task1/random/>/task1/random/</a></li>\n"
     s += '<li><a href=/task1/i_will_not/>/task1/i_will_not/</a></li>\n'
     s += "</ul>"
