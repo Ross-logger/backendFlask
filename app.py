@@ -5,14 +5,13 @@ app = Flask(__name__)
 
 
 @app.route('/')
-@app.route('/haba/')
-def hello_world():
-    s = ["Hello, Haba!",
-         "Hello, Arsen!",
-         "Hello, Karim!"]
+@app.route('/menu')
+def menu():
+    s = ""
+    s += "<li><a href=/task1/random/>/task1/random/</a></li>\n"
+    s += '<li><a href=/task1/i_will_not/>/task1/i_will_not/</a></li>'
+    return s
 
-    out = "<pre>{}</pre>".format("\n".join(s))
-    return out
 
 
 @app.route('/task1/random/')
@@ -29,12 +28,14 @@ def iwont():
     return s
 
 
-@app.route('/menu')
-def menu():
-    s = ""
-    s += "<li><a href=/task1/random/>/task1/random/</a></li>\n"
-    s += '<li><a href=/task1/i_will_not/>/task1/i_will_not/</a></li>'
-    return s
+@app.route('/haba/')
+def hhh():
+    s = ["Hello, Haba!",
+         "Hello, Arsen!",
+         "Hello, Karim!"]
+
+    out = "<pre>{}</pre>".format("\n".join(s))
+    return out
 
 
 if __name__ == '__main__':
