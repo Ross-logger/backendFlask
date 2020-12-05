@@ -1,10 +1,43 @@
-from flask import Flask
+from flask import Flask, render_template
 import random as rnd
+import string
+import requests
 
 app = Flask(__name__)
 
+s = rnd.choice(string.ascii_letters) + rnd.choice(string.ascii_letters)
+
 
 @app.route('/')
+@app.route("/task2/avito/<city>/<category>/<ad>/")
+def avito(city, category, ad):
+    out = """ <table>
+     <h1>debug info</h1>
+     <pre>city={} category={} ad={}</pre><h1>{}</h1><pre>{}</pre>""".format(city, category, ad, s, s)
+    return out
+
+
+@app.route("/task2/cf/profile/<username>/")
+def cf(username):
+    rating = requests.get("https://codeforces.com/api/user.rating?handle=" + username).json()
+    if rating["status"] == "OK":
+        rating = str(rating["result"][-1]["newRating"])
+        out = """<table>
+        <tr>
+            <th>User</th>
+            <th>Rating</th>
+        </tr>
+        <tr>
+            <th>{}</th>
+            <th>{}</th>
+        </tr>
+    </table>
+    """.format(username, rating)
+    else:
+        out = "User not found"
+    return out
+
+
 @app.route('/menu')
 def menu():
     s = ""
