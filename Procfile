@@ -1,1 +1,1 @@
-web: gunicorn ramyil:app
+web: gunicorn app:app
