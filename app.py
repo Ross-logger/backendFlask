@@ -20,7 +20,7 @@ def menu():
 
 @app.route("/task2/avito/<city>/<category>/<ad>/")
 def avito(city, category, ad):
-    out = """ <table>
+    out = """ <table >
      <h1>debug info</h1>
      <pre>city={} category={} ad={}</pre><h1>{}</h1><pre>{}</pre>""".format(city, category, ad, s, s)
     return out
@@ -31,7 +31,7 @@ def cf(username):
     rating = requests.get("https://codeforces.com/api/user.rating?handle=" + username).json()
     if rating["status"] == "OK":
         rating = str(rating["result"][-1]["newRating"])
-        out = """<table>
+        out = """<table id=stats>
         <tr>
             <th>User</th>
             <th>Rating</th>
