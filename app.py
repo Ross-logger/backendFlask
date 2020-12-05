@@ -31,17 +31,16 @@ def cf(username):
     rating = requests.get("https://codeforces.com/api/user.rating?handle=" + username).json()
     if rating["status"] == "OK":
         rating = str(rating["result"][-1]["newRating"])
-        out = """<table id=stats>
+        out = f"""<table id=stats border="1">
         <tr>
             <th>User</th>
             <th>Rating</th>
         </tr>
         <tr>
-            <th>{}</th>
-            <th>{}</th>
+            <td>{username}</td>
+            <td>{rating}</td> 
         </tr>
-    </table>
-    """.format(username, rating)
+    </table>"""
     else:
         out = "User not found"
     return out
