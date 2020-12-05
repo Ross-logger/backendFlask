@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask
 import random as rnd
 import string
 import requests
@@ -9,6 +9,15 @@ s = rnd.choice(string.ascii_letters) + rnd.choice(string.ascii_letters)
 
 
 @app.route('/')
+def menu():
+    s = ""
+    s += "<ul id=menu>\n"
+    s += "<li><a href=/task1/random/>/task1/random/</a></li>\n"
+    s += '<li><a href=/task1/i_will_not/>/task1/i_will_not/</a></li>\n'
+    s += "</ul>"
+    return s
+
+
 @app.route("/task2/avito/<city>/<category>/<ad>/")
 def avito(city, category, ad):
     out = """ <table>
@@ -36,16 +45,6 @@ def cf(username):
     else:
         out = "User not found"
     return out
-
-
-@app.route('/menu')
-def menu():
-    s = ""
-    s += "<ul id=menu>\n"
-    s += "<li><a href=/task1/random/>/task1/random/</a></li>\n"
-    s += '<li><a href=/task1/i_will_not/>/task1/i_will_not/</a></li>\n'
-    s += "</ul>"
-    return s
 
 
 @app.route('/task1/random/')
