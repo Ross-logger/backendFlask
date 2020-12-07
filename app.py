@@ -20,9 +20,9 @@ def menu():
 
 @app.route("/task2/avito/<city>/<category>/<ad>/")
 def avito(city, category, ad):
-    out = """ <table >
+    out = """
      <h1>debug info</h1>
-     <pre>city={} category={} ad={}</pre><h1>{}</h1><pre>{}</pre>""".format(city, category, ad, s, s)
+     <p>city={} category={} ad={}</p><h1>{}</h1><p>{}</p>""".format(city, category, ad, s, s)
     return out
 
 
