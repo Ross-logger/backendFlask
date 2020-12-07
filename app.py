@@ -22,7 +22,7 @@ def menu():
 def avito(city, category, ad):
     out = """
      <h1>debug info</h1>
-     <p>city={} category={} ad={}</p><h1>{}</h1><p>{}</p>""".format(city, category, ad, s, s)
+     <p>city={} category={} ad={}</p><h1>{}</h1><p>{}</p>""".format(city, category, ad, category[1], city[1])
     return out
 
 
