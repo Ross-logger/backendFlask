@@ -2,6 +2,10 @@ from flask import Flask
 import random as rnd
 import string
 import requests
+import num2words
+import inflect
+import json
+
 
 app = Flask(__name__)
 
@@ -31,7 +35,7 @@ def cf(username):
     rating = requests.get("https://codeforces.com/api/user.rating?handle=" + username).json()
     if rating["status"] == "OK":
         rating = str(rating["result"][-1]["newRating"])
-        out = f"""<table id=stats border="1">
+        out = """<table id=stats border="1">
         <tr>
             <th>User</th>
             <th>Rating</th>
@@ -44,8 +48,6 @@ def cf(username):
     else:
         out = "User not found"
     return out
-
-
 @app.route('/task1/random/')
 def random():
     s = "Haba's mark is " + str(rnd.randint(1, 5))
@@ -70,6 +72,26 @@ def hhh():
 
     out = "<pre>{}</pre>".format("\n".join(s))
     return out
+
+
+@app.route("/task2/num2words/<num>/")
+def n(num):
+    num = int(num)
+    p = inflect.engine()
+    h = p.number_to_words(num)
+    h = " ".join(h.split("-"))
+    h = " ".join(h.split(" and "))
+    if 0 <= num <= 999:
+        dict = {"status": "OK",
+                "number": num,
+                "isEven": not bool(num % 2),
+                "words": h
+                }
+    else:
+        dict = {
+            "status": "FAIL"
+        }
+    return json.dumps(dict)
 
 
 if __name__ == '__main__':
