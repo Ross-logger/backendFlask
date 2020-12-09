@@ -84,7 +84,7 @@ def n(num):
     h = " ".join(h.split(" and "))
     if 0 <= num <= 999:
         dict = {"status": "OK",
-                "number": str(num),
+                "number": num,
                 "isEven": not bool(num % 2),
                 "words": h
                 }
