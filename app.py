@@ -6,7 +6,6 @@ import num2words
 import inflect
 import json
 
-
 app = Flask(__name__)
 
 s = rnd.choice(string.ascii_letters) + rnd.choice(string.ascii_letters)
@@ -41,13 +40,15 @@ def cf(username):
             <th>Rating</th>
         </tr>
         <tr>
-            <td>{username}</td>
-            <td>{rating}</td> 
+            <td>{}</td>
+            <td>{}</td> 
         </tr>
-    </table>"""
+    </table>""".format(username, rating)
     else:
         out = "User not found"
     return out
+
+
 @app.route('/task1/random/')
 def random():
     s = "Haba's mark is " + str(rnd.randint(1, 5))
@@ -83,7 +84,7 @@ def n(num):
     h = " ".join(h.split(" and "))
     if 0 <= num <= 999:
         dict = {"status": "OK",
-                "number": num,
+                "number": str(num),
                 "isEven": not bool(num % 2),
                 "words": h
                 }
