@@ -1,14 +1,44 @@
-from flask import Flask
+from flask import Flask, render_template, request
 import random as rnd
 import string
 import requests
 import num2words
 import inflect
 import json
-
 app = Flask(__name__)
 
 s = rnd.choice(string.ascii_letters) + rnd.choice(string.ascii_letters)
+
+
+
+@app.route('/task3/cf/profile/<handle>/page/<page_number>/')
+def cf_single(handle,page_number):
+    url = "https://codeforces.com/api/user.status?handle=" + handle + "/page/" + page_number + "&from=1&count=100"
+    posts_per_page = 25
+
+
+@app.route('/task3/cf/top/')
+def top():
+    handles = sorted(request.args.get("handles").split("|"))
+    orderby = request.args.get("orderby", "")
+    handict = {}
+    url = "https://codeforces.com/api/user.info?handles="
+    for nick in handles:
+        url = url + nick + ";"
+    ssilka = json.loads(requests.get(url).text)
+    if (ssilka["status"] == "FAILED"):
+        return "User not found"
+    else:
+        for nicki in ssilka["result"]:
+            handle = nicki["handle"]
+            rating = nicki["rating"]
+            handict[handle] = int(rating)
+            if orderby == "rating":
+                handict = dict(sorted(handict.items(), key=lambda i: i[-1] ))
+    return render_template("cf_top.html", dict=handict)
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template("error404.html")
 
 
 @app.route('/')
@@ -25,7 +55,8 @@ def menu():
 def avito(city, category, ad):
     out = """
      <h1>debug info</h1>
-     <p>city={} category={} ad={}</p><h1>{}</h1><p>{}</p>""".format(city, category, ad, category[1] + city, city[1] + category)
+     <p>city={} category={} ad={}</p><h1>{}</h1><p>{}</p>""".format(city, category, ad, category[1] + city,
+                                                                    city[1] + category)
     return out
 
 
