@@ -5,16 +5,31 @@ import requests
 import num2words
 import inflect
 import json
+from collections import OrderedDict
+from operator import itemgetter
+
 app = Flask(__name__)
 
 s = rnd.choice(string.ascii_letters) + rnd.choice(string.ascii_letters)
 
+@app.route('/task3/cf/profile/<handle>/')
+def cf_si(handle):
+    url = f'http://codeforces.com/api/user.status?handle={handle}&from=1&count=100'
+    text = requests.get(url).text
+    ssilka = json.loads(text)
+    page_number = 1
+    popitki = ssilka["result"]
+    max_page_number = (len(popitki)+24) // 25
+    return render_template("cf_single_page.html", popitki=popitki,handle=handle, max_page_number=max_page_number,page_number=page_number)
+@app.route('/task3/cf/profile/<handle>/page/<int:page_number>/')
+def cf_single(handle, page_number):
+    url = f'http://codeforces.com/api/user.status?handle={handle}&from=1&count=100'
+    text = requests.get(url).text
+    ssilka = json.loads(text)
+    popitki = ssilka["result"]
 
-
-@app.route('/task3/cf/profile/<handle>/page/<page_number>/')
-def cf_single(handle,page_number):
-    url = "https://codeforces.com/api/user.status?handle=" + handle + "/page/" + page_number + "&from=1&count=100"
-    posts_per_page = 25
+    max_page_number = (len(popitki)+24) // 25
+    return render_template("cf_single_page.html", popitki=popitki,handle=handle, max_page_number=max_page_number,page_number=page_number)
 
 
 @app.route('/task3/cf/top/')
@@ -33,9 +48,11 @@ def top():
             handle = nicki["handle"]
             rating = nicki["rating"]
             handict[handle] = int(rating)
-            if orderby == "rating":
-                handict = dict(sorted(handict.items(), key=lambda i: i[-1] ))
+        if orderby == "rating":
+            handict = OrderedDict(sorted(handict.items(), key=itemgetter(1), reverse=True))
     return render_template("cf_top.html", dict=handict)
+
+
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template("error404.html")
@@ -127,4 +144,4 @@ def n(num):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

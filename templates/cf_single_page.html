@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <title>ChpokvPupok</title>
+</head>
+<body>
+<table class="table table-dark table-hover" id="submissions">
+    <thead>
+    <tr>
+        <th scope="col">Время</th>
+        <th scope="col">Задача</th>
+        <th scope="col">Вердикт</th>
+    </tr>
+    </thead>
+    <tbody>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            {%if page_number==1 %}
+            <li class="page-item disabled">
+                <a class="page-link" href="http://127.0.0.1:5000/task3/cf/profile/{{handle}}/page/1/" tabindex="-1">Previous</a>
+            </li>
+            {%endif%}
+            {%if page_number!=1 %}
+            <li class="page-item active">
+                <a class="page-link" href="http://127.0.0.1:5000/task3/cf/profile/{{handle}}/page/{{page_number-1}}/" tabindex="-1">Previous</a>
+            </li>
+            {%endif%}
+            {% for i in range(max_page_number) %}
+            <li class="page-item {% if i + 1 == page_number %} active {% endif %}">
+                <a class="page-link"
+                   href="http://127.0.0.1:5000/task3/cf/profile/{{handle}}/page/{{i + 1}}/"><span
+                        class="sr-only">{{ i + 1 }}</span></a>
+            </li>
+            {%endfor%}
+            {%if max_page_number==page_number%}
+            <li class="page-item disabled"><a class="page-link"
+                                              href="http://127.0.0.1:5000/task3/cf/profile/{{handle}}/page/{{max_page_number}}/"
+                                              tabindex="-1">Next</a>
+            </li>
+            {%endif%}
+            {%if max_page_number!=page_number%}
+            <li class="page-item active"><a class="page-link"
+                                            href="http://127.0.0.1:5000/task3/cf/profile/{{handle}}/page/{{page_number+1}}/"
+                                            tabindex="-1">Next</a>
+            </li>
+            {%endif%}
+            {%for submissions in popitki[(page_number-1)*25:page_number*25]%}
+            <tr>
+                <td>{{submissions["creationTimeSeconds"] }}</td>
+                <td>{{ submissions["problem"]["name"] }}</td>
+                <td>{{ submissions["verdict"] }}</td>
+                {%endfor%}
+            </tr>
+            </li>
+        </ul>
+    </nav>
+
+    </tbody>
+</table>
+</body>
+</html>
