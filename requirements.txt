@@ -2,4 +2,6 @@ Flask
 gunicorn
 requests
 num2words
-inflect 
+inflect
+collections
+operator
