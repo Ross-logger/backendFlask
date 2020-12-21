@@ -1,10 +1,8 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import random as rnd
 import string
 import requests
-import num2words
-import inflect
-import json
+import inflect, json
 from collections import OrderedDict
 from operator import itemgetter
 
@@ -12,15 +10,12 @@ app = Flask(__name__)
 
 s = rnd.choice(string.ascii_letters) + rnd.choice(string.ascii_letters)
 
+
 @app.route('/task3/cf/profile/<handle>/')
 def cf_si(handle):
-    url = f'http://codeforces.com/api/user.status?handle={handle}&from=1&count=100'
-    text = requests.get(url).text
-    ssilka = json.loads(text)
-    page_number = 1
-    popitki = ssilka["result"]
-    max_page_number = (len(popitki)+24) // 25
-    return render_template("cf_single_page.html", popitki=popitki,handle=handle, max_page_number=max_page_number,page_number=page_number)
+    return redirect(url_for('cf_single', handle=handle, page_number=1))
+
+
 @app.route('/task3/cf/profile/<handle>/page/<int:page_number>/')
 def cf_single(handle, page_number):
     url = f'http://codeforces.com/api/user.status?handle={handle}&from=1&count=100'
@@ -28,8 +23,9 @@ def cf_single(handle, page_number):
     ssilka = json.loads(text)
     popitki = ssilka["result"]
 
-    max_page_number = (len(popitki)+24) // 25
-    return render_template("cf_single_page.html", popitki=popitki,handle=handle, max_page_number=max_page_number,page_number=page_number)
+    max_page_number = (len(popitki) + 24) // 25
+    return render_template("cf_single_page.html", popitki=popitki, handle=handle, max_page_number=max_page_number,
+                           page_number=page_number)
 
 
 @app.route('/task3/cf/top/')
