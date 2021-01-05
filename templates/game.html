@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+{% if error_name == True %}
+<a id= "error" style="color:blue;">Please, enter your name</a>
+{% endif %}
+{% if error_start == True %}
+<a id="error" style="color:">Sorry, game is caputed</a>
+{% else %}
+<form action={{link_after_post}} method="post" id="play">
+    <input name="name" type="text" id="name"/><br>
+    <input id="submitting" name="submitting_name" type="submit" value="Register!"/>
+</form>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,110 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/Users/apple/PycharmProjects/web/templates/css.css">
+</head>
+<body>
+<form action="/result" method="POST" id="create">
+    <p>Name <input type="text" name="Name"/></p>
+    <p>Physics <input type="text" name="Physics"/></p>
+    <p>Chemistry <input type="text" name="Chemistry"/></p>
+    <p>Maths <input type="password" name="Mathematics"/></p>
+    <p><input type="submit" value="submit"/></p>
+    <label>Семейное положение</label>
+    <label>
+        <input type="radio" name="status">
+        Холост
+    </label>
+    <label>
+        <input type="radio" name="status">
+        Женат
+    </label>
+    <label>
+        <input type="radio" name="status">
+        Разведён
+    </label>
+    <label>
+        <input type="radio" name="status">
+        Вдовец
+    </label>
+    <label>
+        <input type="checkbox"> Я согласен с условиями
+    </label>
+    <select>
+        <option>Январь</option>
+        <option>Февраль</option>
+        <option>Март</option>
+        <option>Апрель</option>
+        <option>Май</option>
+        <option>Июнь</option>
+        <option>Июль</option>
+        <option>Август</option>
+        <option>Сентябрь</option>
+        <option>Октябрь</option>
+        <option>Ноябрь</option>
+        <option>Декабрь</option>
+    </select>
+    <form action="/signup" method="POST">
+        <p>
+            <label>Обращение</label>
+            <label>
+                <input type="radio" name="title" value="mr">
+                Г-н
+            </label>
+            <label>
+                <input type="radio" name="title" value="mrs">
+                Г-жа
+            </label>
+        </p>
+        <p>
+            <label>Имя</label>
+            <input type="text" name="first_name">
+        </p>
+        <p>
+            <label>Фамилия</label>
+            <input type="text" name="last_name">
+        </p>
+        <p>
+            <label>Email</label>
+            <input type="email" name="email">
+        </p>
+        <p>
+            <label>Телефон</label>
+            <input type="tel" name="phone">
+        </p>
+        <p>
+            <label>Пароль</label>
+            <input type="password" name="password">
+        </p>
+        <p>
+            <label>Подтвердите пароль</label>
+            <input type="password" name="password_confirm">
+        </p>
+        <p>
+            <label>Страна</label>
+            <select name="country">
+                <option>Канада</option>
+                <option>Франция</option>
+                <option>Германия</option>
+                <option>Италия</option>
+                <option>Япония</option>
+                <option>Россия</option>
+                <option>Великобритания</option>
+                <option>США</option>
+            </select>
+        </p>
+        <p>
+            <label>
+                <input type="checkbox" name="terms">
+                Я согласен с <a href="/terms">условиями использования</a>
+            </label>
+        </p>
+        <p>
+            <button>
+                Зарегистрироваться
+            </button>
+        </p>
+    </form>
+</form>
+</body>
+</html>
