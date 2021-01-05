@@ -1,143 +1,112 @@
 from flask import Flask, render_template, request, redirect, url_for
-import random as rnd
-import string
+import json
 import requests
-import inflect, json
-from collections import OrderedDict
-from operator import itemgetter
+import random
+
 
 app = Flask(__name__)
+value_ = {
+    "token": "4UffYATBFJOqTiy9aJDnajwBa5XrSTfy",
+    "secret": "put5plsochennadopukpukpukpukpuk1",
+    "command": "set",
+    "key": "",
+    "value": ""
+}
+data_set = value_
 
-s = rnd.choice(string.ascii_letters) + rnd.choice(string.ascii_letters)
+key_ = {
+    "token": "4UffYATBFJOqTiy9aJDnajwBa5XrSTfy",
+    "secret": "put5plsochennadopukpukpukpukpuk1",
+    "command": "get",
+    "key": ""
+}
+data_get = key_
+
+games_info = {}
 
 
-@app.route('/task3/cf/profile/<handle>/')
-def cf_si(handle):
-    return redirect(url_for('cf_single', handle=handle, page_number=1))
-
-
-@app.route('/task3/cf/profile/<handle>/page/<int:page_number>/')
-def cf_single(handle, page_number):
-    url = f'http://codeforces.com/api/user.status?handle={handle}&from=1&count=100'
-    text = requests.get(url).text
-    ssilka = json.loads(text)
-    popitki = ssilka["result"]
-
-    max_page_number = (len(popitki) + 24) // 25
-    return render_template("cf_single_page.html", popitki=popitki, handle=handle, max_page_number=max_page_number,
-                           page_number=page_number)
-
-
-@app.route('/task3/cf/top/')
-def top():
-    handles = sorted(request.args.get("handles").split("|"))
-    orderby = request.args.get("orderby", "")
-    handict = {}
-    url = "https://codeforces.com/api/user.info?handles="
-    for nick in handles:
-        url = url + nick + ";"
-    ssilka = json.loads(requests.get(url).text)
-    if (ssilka["status"] == "FAILED"):
-        return "User not found"
+@app.route("/task4/santa/create", methods=["GET", "POST"])
+def create():
+    if request.method == "POST":
+        create_form = request.form
+        game_name = str(create_form["name_of_game"])
+        shifr = str(random.randint(100000000000000000000000000000000000000000, 9000000000000000000000000000000089097809609)) + game_name
+        secret = str(random.randint(100000000000000000000000000000000000000000, 9000000000000000000000000000000089097809609))
+        link_for_player = "/task4/santa/play/{link}".format(link=shifr)
+        organizer = "/task4/santa/toss/{link}/{secret}".format(link=shifr, secret=secret)
+        info = {"name": game_name, "code": shifr, "secret":secret, "play": link_for_player,
+                "organize":organizer, "active": "True", "players": []}
+        data_set["key"] = shifr
+        data_set["value"] = json.dumps(info)
+        requests.post("https://arsenwisheshappy2021.herokuapp.com/query", data=data_set)
+        return render_template("sdelannaya_igra.html", form=create_form, player_link=link_for_player,
+                               organizer=organizer)
     else:
-        for nicki in ssilka["result"]:
-            handle = nicki["handle"]
-            rating = nicki["rating"]
-            handict[handle] = int(rating)
-        if orderby == "rating":
-            handict = OrderedDict(sorted(handict.items(), key=itemgetter(1), reverse=True))
-    return render_template("cf_top.html", dict=handict)
+        return render_template('student_create.html')
 
 
-@app.errorhandler(404)
-def page_not_found(error):
-    return render_template("error404.html"),404
+@app.route("/task4/santa/play/<link>", methods=["GET", "POST"])
+def play(link):
+    if request.method == "GET":
+        link_after_post = '/task4/santa/play/{link}'.format(link=link)
+        data_get["key"] = link
+        r_get = requests.post("https://arsenwisheshappy2021.herokuapp.com/query", data=data_get)
+        game_info = json.loads(r_get.text)
+        if game_info["active"] == "False":
+            error = True
+        else:
+            error = False
+        return render_template("game.html", error_start=error, link_after_post=link_after_post)
+    elif request.method == "POST" and request.form["name"].strip() == '':
+        link_after_post = '/task4/santa/play/{link}'.format(link=link)
+        return render_template("game.html", error_name=True, link_after_post=link_after_post)
+    elif request.method == "POST":
+        player_form = request.form
+        player_name = str(player_form["name"])
+        data_get["key"] = link
+        r_get = requests.post("https://arsenwisheshappy2021.herokuapp.com/query", data=data_get)
+        game_info = json.loads(r_get.text)
+        game_info["players"].append(player_name)
+        data_set["key"] = link
+        data_set["value"] = json.dumps(game_info)
+        requests.post("https://arsenwisheshappy2021.herokuapp.com/query", data=data_set)
+        return render_template("play_success.html", name=player_name)
 
 
-@app.route('/')
-def menu():
-    s = ""
-    s += "<ul id=menu>\n"
-    s += "<li><a href=/task1/random/>/task1/random/</a></li>\n"
-    s += '<li><a href=/task1/i_will_not/>/task1/i_will_not/</a></li>\n'
-    s += "</ul>"
-    return s
-
-
-@app.route("/task2/avito/<city>/<category>/<ad>/")
-def avito(city, category, ad):
-    out = """
-     <h1>debug info</h1>
-     <p>city={} category={} ad={}</p><h1>{}</h1><p>{}</p>""".format(city, category, ad, category[1] + city,
-                                                                    city[1] + category)
-    return out
-
-
-@app.route("/task2/cf/profile/<username>/")
-def cf(username):
-    rating = requests.get("https://codeforces.com/api/user.rating?handle=" + username).json()
-    if rating["status"] == "OK":
-        rating = str(rating["result"][-1]["newRating"])
-        out = """<table id=stats border="1">
-        <tr>
-            <th>User</th>
-            <th>Rating</th>
-        </tr>
-        <tr>
-            <td>{}</td>
-            <td>{}</td> 
-        </tr>
-    </table>""".format(username, rating)
-    else:
-        out = "User not found"
-    return out
-
-
-@app.route('/task1/random/')
-def random():
-    s = "Haba's mark is " + str(rnd.randint(1, 5))
-    return s
-
-
-@app.route('/task1/i_will_not/')
-def iwont():
-    s = ""
-    s += "<ul id=blackboard>\n"
-    for i in range(100):
-        s += "<li>I will not waste time</li>\n"
-    s += "</ul>"
-    return s
-
-
-@app.route('/haba/')
-def hhh():
-    s = ["Hello, Haba!",
-         "Hello, Arsen!",
-         "Hello, Karim!"]
-
-    out = "<pre>{}</pre>".format("\n".join(s))
-    return out
-
-
-@app.route("/task2/num2words/<num>/")
-def n(num):
-    num = int(num)
-    p = inflect.engine()
-    h = p.number_to_words(num)
-    h = " ".join(h.split("-"))
-    h = " ".join(h.split(" and "))
-    if 0 <= num <= 999:
-        dict = {"status": "OK",
-                "number": num,
-                "isEven": not bool(num % 2),
-                "words": h
-                }
-    else:
-        dict = {
-            "status": "FAIL"
-        }
-    return json.dumps(dict)
-
+@app.route("/task4/santa/toss/<link>/<secret>", methods=["GET", "POST"])
+def secreet(link, secret):
+    if request.method == "POST":
+        data_get["key"] = link
+        ret = requests.post("https://arsenwisheshappy2021.herokuapp.com/query", data=data_get)
+        game_info = json.loads(ret.text)
+        players_list = game_info["players"]
+        random.shuffle(players_list)
+        pairs = {}
+        pairs[players_list[0]] = players_list[-1]
+        for i in range(1, len(players_list) // 2):
+            pairs[players_list[i]] = players_list[-i - 1]
+        game_info["active"] = "False"
+        data_set["key"] = link
+        data_set["value"] = json.dumps(game_info)
+        requests.post("https://arsenwisheshappy2021.herokuapp.com/query", data=data_set)
+        list_of_keys = list(pairs.keys())
+        return render_template("toss_finished.html", pairs=pairs, list_of_keys=list_of_keys)
+    elif request.method == "GET":
+        data_get["key"] = link
+        ret = requests.post("https://arsenwisheshappy2021.herokuapp.com/query", data=data_get)
+        game_info = json.loads(ret.text)
+        if game_info["active"] == "False":
+            error_f = True
+        else:
+            error_f = False
+        players_list = game_info["players"]
+        if len(players_list) == 0 or len(players_list) % 2 == 1:
+            error_q = True
+        else:
+            error_q = False
+        link_2 = "/task4/santa/toss/{link}/{secret}".format(link=link, secret=secret)
+        return render_template("toss_start.html", error_q=error_q, error_f=error_f, players_list=players_list,
+                               link_2=link_2)
 
 if __name__ == '__main__':
     app.run(debug=True)
