@@ -3,3 +3,4 @@ gunicorn
 requests
 num2words
 inflect
+psycopg2
