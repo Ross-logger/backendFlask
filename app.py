@@ -1,142 +1,178 @@
-from flask import Flask, render_template, request, redirect, url_for
-import random as rnd
-import string
-import requests
-import inflect, json
-from collections import OrderedDict
-from operator import itemgetter
+from flask import Flask, render_template, request, redirect, url_for, make_response, session
+import json , random as rnd, requests, psycopg2, os, string, smtplib
+from hashlib import md5
+from email.message import EmailMessage
+from datetime import datetime
 
+site_key = os.environ['site_key']
+
+conn = psycopg2.connect(dbname='d9phncea8bbook', user='irzyivcngwtzbb',
+                        password='f12c32668291295574019ce41bb71332958deaf434ad0f67a4a10d378fd9d23d',
+                        host='ec2-52-50-171-4.eu-west-1.compute.amazonaws.com', port=5432)
+cur = conn.cursor()
+# print(cur.execute("select * from test"))
+# print(cur.execute("CREATE TABLE users ( ID SERIAL primary key,time varchar(64),ip varchar(64), email varchar(64))"))
+# print(cur.execute("DROP TABLE worker"))
+# print(cur.fetchall())
+# Make the changes to the database persistent
+conn.commit()
 app = Flask(__name__)
+app.secret_key = 'yus1'
 
-s = rnd.choice(string.ascii_letters) + rnd.choice(string.ascii_letters)
-
-
-@app.route('/task3/cf/profile/<handle>/')
-def cf_si(handle):
-    return redirect(url_for('cf_single', handle=handle, page_number=1))
+# cur.execute("CREATE TABLE worker ( ID SERIAL primary key,email varchar(64),time varchar(64),N int, p int,q int,status varchar(64),time_started varchar(64),time_ended varchar(64))")
+# cur.execute("CREATE TABLE data(email varchar(64),password varchar(64),code varchar(64),status varchar(64))")
+conn.commit()
 
 
-@app.route('/task3/cf/profile/<handle>/page/<int:page_number>/')
-def cf_single(handle, page_number):
-    url = f'http://codeforces.com/api/user.status?handle={handle}&from=1&count=100'
-    text = requests.get(url).text
-    ssilka = json.loads(text)
-    popitki = ssilka["result"]
-
-    max_page_number = (len(popitki) + 24) // 25
-    return render_template("cf_single_page.html", popitki=popitki, handle=handle, max_page_number=max_page_number,
-                           page_number=page_number)
+@app.route("/task5/test/enable")
+def captcha_enable():
+    resp = make_response(render_template('enable.html'))
+    resp.set_cookie("auto", "True")
+    return resp
 
 
-@app.route('/task3/cf/top/')
-def top():
-    handles = sorted(request.args.get("handles").split("|"))
-    orderby = request.args.get("orderby", "")
-    handict = {}
-    url = "https://codeforces.com/api/user.info?handles="
-    for nick in handles:
-        url = url + nick + ";"
-    ssilka = json.loads(requests.get(url).text)
-    if (ssilka["status"] == "FAILED"):
-        return "User not found"
-    else:
-        for nicki in ssilka["result"]:
-            handle = nicki["handle"]
-            rating = nicki["rating"]
-            handict[handle] = int(rating)
-        if orderby == "rating":
-            handict = OrderedDict(sorted(handict.items(), key=itemgetter(1), reverse=True))
-    return render_template("cf_top.html", dict=handict)
+@app.route("/task5/test/disable")
+def captcha_disable():
+    resp = make_response(render_template('disable.html'))
+    resp.set_cookie("auto", "False")
+    return resp
 
 
-@app.errorhandler(404)
-def page_not_found(error):
-    return render_template("error404.html"),404
+@app.route("/task5/sign-up/", methods=["GET", "POST"])
+def sign_up():
+    if request.method == 'POST':
+        if request.cookies.get('auto') == "True":
+            secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
+            site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+        else:
+            secret_key = '6Leig10aAAAAAGc9BuyWuqaSE5nLNja1HYkBPwmY'
+            site_key = '6Leig10aAAAAAOb62ZbsGklzVXmpWhHcMuwHhzRC'
+        captcha_response = request.form['g-recaptcha-response']
+        captcha_data = {'secret': secret_key,
+                        'response': captcha_response}
+        requests.post('https://www.google.com/recaptcha/api/siteverify', data=captcha_data)
+        captcha_response = request.form['g-recaptcha-response']
+        email = request.form.get('email')
+        password = request.form.get('password')
+        password2 = request.form.get('password2')
+        su = rnd.choice(string.ascii_letters) + rnd.choice(string.ascii_letters) + str(rnd.randint(1000, 10000))
+
+        status, msg, msg2, msg3 = "ok", '', '', ''
+        if not is_human(captcha_response):
+            status, msg = "false", 'Botyara!'
+        else:
+            cur.execute(f"SELECT email from data WHERE email='{email}'")
+            if cur.fetchone() is not None:
+                msg3 = "This email adress already exists!"
+                status = "false"
+        conn.commit()
+        if status == "ok":
+            email_msg = f"<p><a href=/task5/verification/{email}/{su}/>Congrats!Your activation link here: https://limp.herokuapp.com/task5/verification/{email}/{su}</a></p>"
+            msg = EmailMessage()
+            msg.set_content(email_msg)
+            msg['Subject'] = 'Click to confirm your email'
+            msg['From'] = 'no-reply@limp.herokuapp.com'
+            msg['To'] = f'{email}'
+            s = smtplib.SMTP(host='b.li2sites.ru', port=30025)
+            s.send_message(msg)
+            s.quit()
+        if status == "ok":
+            cur.execute(
+                f"INSERT INTO  data (email,password,code,status) values ('{email}','{md5(password.encode('utf-8')).hexdigest()}','{su}','not_veri')")
+            conn.commit()
+            return render_template('after_signup.html', url_veri=url_for('verification', email=email, code=s))
+        return render_template('signup.html', site_key=site_key, status=status, msg=msg, msg2=msg2, msg3=msg3)
+
+    if request.method == 'GET':
+        auto = request.cookies.get('auto')
+        if auto == 'True':
+            secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
+            site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+        else:
+            secret_key = '6Leig10aAAAAAGc9BuyWuqaSE5nLNja1HYkBPwmY'
+            site_key = '6Leig10aAAAAAOb62ZbsGklzVXmpWhHcMuwHhzRC'
+        return render_template('signup.html', site_key=site_key)
 
 
-@app.route('/')
-def menu():
-    s = ""
-    s += "<ul id=menu>\n"
-    s += "<li><a href=/task1/random/>/task1/random/</a></li>\n"
-    s += '<li><a href=/task1/i_will_not/>/task1/i_will_not/</a></li>\n'
-    s += "</ul>"
-    return s
+@app.route("/task5/verification/<email>/<code>/", methods=["GET", "POST"])
+def verification(email, code):
+    if request.method == 'POST':
+        password = request.form.get('password')
+        password2 = request.form.get('password2')
+        cur.execute(f"SELECT count(status) from data WHERE email='{email}'")
+        if password == password2:
+            cur.execute(
+                f"INSERT INTO  data (email,password,status) values ('{email}','{md5(password.encode('utf-8')).hexdigest()}','veri')")
+            conn.commit()
+            return render_template('after_signin.html')
+        else:
+            msg = 'Passwords are not similar!Or you have already registred! '
+        return render_template('veri.html', site_key=site_key, msg=msg, email=email)
+    if request.method == 'GET':
+        return render_template('veri.html', site_key=site_key, email=email)
 
 
-@app.route("/task2/avito/<city>/<category>/<ad>/")
-def avito(city, category, ad):
-    out = """
-     <h1>debug info</h1>
-     <p>city={} category={} ad={}</p><h1>{}</h1><p>{}</p>""".format(city, category, ad, category[1] + city,
-                                                                    city[1] + category)
-    return out
+@app.route("/task5/sign-in/", methods=["GET", "POST"])
+def sign_in():
+    if request.method == "POST":
+        email = request.form.get('email')
+        password = md5(request.form.get('password').encode()).hexdigest()
+        status, msg, msg2, msg3 = "ok", "", "", ""
+        session['user_email'] = email
+        # print(session.get('user_email'))
+        # and cur.fetchall(f"SELECT status from data where email='{email}'") != "veri"
+        cur.execute(f"SELECT email from data WHERE email='{email}'")
+        if cur.fetchone() is None:
+            msg = "RETARD!You are not registred!"
+            status = "false"
+        elif status == "ok":
+            cur.execute(f"SELECT password from data WHERE email='{email}' and status='veri'")
+            if password != cur.fetchone()[0]:
+                msg2 = "RETARD!Your password is wrong!"
+                status = "false"
+            else:
+                msg3 = "Succes!RAMil abiy odobryaet!"
+                return redirect(url_for('task5'))
+        return render_template('login.html', status=status, msg=msg, msg2=msg2, msg3=msg3)
+    if request.method == 'GET':
+        return render_template('login.html')
 
 
-@app.route("/task2/cf/profile/<username>/")
-def cf(username):
-    rating = requests.get("https://codeforces.com/api/user.rating?handle=" + username).json()
-    if rating["status"] == "OK":
-        rating = str(rating["result"][-1]["newRating"])
-        out = """<table id=stats border="1">
-        <tr>
-            <th>User</th>
-            <th>Rating</th>
-        </tr>
-        <tr>
-            <td>{}</td>
-            <td>{}</td> 
-        </tr>
-    </table>""".format(username, rating)
-    else:
-        out = "User not found"
-    return out
+def is_human(captcha_response):
+    return captcha_response != ''
 
 
-@app.route('/task1/random/')
-def random():
-    s = "Haba's mark is " + str(rnd.randint(1, 5))
-    return s
+@app.route('/task5/work/', methods=['GET', 'POST'])
+def work():
+    email = session.get('user_email')
+    if request.method == 'POST':
+        n = request.form['n']
+        time = datetime.now()
+        cur.execute(
+            f"INSERT INTO worker (email, time, n, p, q, status, time_started,time_ended) VALUES ('{str(email)}', '', {n}, '0', '0', 'in ochered', '{time}', '')")
+        conn.commit()
+    cur.execute(f"SELECT time, n, p, q, status, time_started ,time_ended FROM worker WHERE email = '{email}'")
+    ans = cur.fetchall()
+    return render_template('worker.html', ans=ans, email=email)
 
 
-@app.route('/task1/i_will_not/')
-def iwont():
-    s = ""
-    s += "<ul id=blackboard>\n"
-    for i in range(100):
-        s += "<li>I will not waste time</li>\n"
-    s += "</ul>"
-    return s
+@app.route("/task5/sign-out/")
+def sign_out():
+    session.pop('user_email', None)
+    return redirect(url_for("sign_in"))
 
 
-@app.route('/haba/')
-def hhh():
-    s = ["Hello, Haba!",
-         "Hello, Arsen!",
-         "Hello, Karim!"]
-
-    out = "<pre>{}</pre>".format("\n".join(s))
-    return out
-
-
-@app.route("/task2/num2words/<num>/")
-def n(num):
-    num = int(num)
-    p = inflect.engine()
-    h = p.number_to_words(num)
-    h = " ".join(h.split("-"))
-    h = " ".join(h.split(" and "))
-    if 0 <= num <= 999:
-        dict = {"status": "OK",
-                "number": num,
-                "isEven": not bool(num % 2),
-                "words": h
-                }
-    else:
-        dict = {
-            "status": "FAIL"
-        }
-    return json.dumps(dict)
+@app.route('/task5/')
+def task5():
+    email = session.get('user_email')
+    print(email)
+    ip = request.remote_addr
+    time = datetime.now()
+    cur.execute(f"INSERT INTO users (time, ip,email) values ('{time}','{ip}','{email}')")
+    conn.commit()
+    cur.execute(f"SELECT time,ip from users where email='{email}'")
+    array = cur.fetchall()
+    return render_template('task5.html', array=array)
 
 
 if __name__ == '__main__':
