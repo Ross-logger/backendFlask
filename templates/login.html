@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+</head>
+<body>
+{%if msg !=''%}
+<h1 class="text-center" style="color:red">{{msg}}</h1>
+{%endif%}
+{%if msg2 != ''%}
+<h1 class="text-center" style="color:red">{{msg2}}</h1>
+{%endif%}
+{%if msg3 != ''%}
+<h1 class="text-center" style="color:green">{{msg3}}</h1>
+{%endif%}
+<div class="column is-4 is-offset-4">
+    <h3 class="title">Login</h3>
+    <div class="box">
+        <form method="POST" id="login">
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="email" name="email" placeholder="Your Email">
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="password" name="password" placeholder="Your Password">
+                </div>
+            </div>
+<!--            <div class="field">-->
+<!--                <label class="checkbox">-->
+<!--                    <input type="checkbox">-->
+<!--                    Remember me-->
+<!--                </label>-->
+<!--            </div>-->
+            <button class="button is-block is-info is-large is-fullwidth">Login</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
