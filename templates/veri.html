@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+</head>
+<body bgcolor="#d2b48c">
+{%if msg != ''%}
+<h1 class="text-center" style="color:red" id="error">{{msg}}</h1>
+{%endif%}
+{%if msg2 != '' %}
+<h1>{{msg2}}</h1>
+{%endif%}
+{%if msg3 != '' %}
+<h1>{{msg3}}</h1>
+{%endif%}
+<form method="POST" id="create">
+    <div style="margin-top: 250px;">
+        <div class="container-fluid" text-align: center>
+            <div>
+                <h5><p class="text-center">Email<input type="text" value="{{email}}"></p>
+                </h5>
+            </div>
+            <div>
+                <h5><p class="text-center">Pswd <input type="password" placeholder="Password" name="password"/></p></h5>
+                <h5><p class="text-center">Pswd <input type="password" placeholder="Password again" name="password2"/></p></h5>
+            </div>
+        </div>
+    </div>
+    <div class="g-recaptcha" style="width:100%; display: flex; justify-content: center" data-sitekey={{site_key}}></div>
+
+    <div class="container" style="width:28%">
+        <div class="row justify-content-around">
+            <div class="col-4">
+                <button type="submit" class="btn btn-outline-primary">
+                    Sign in
+                </button>
+            </div>
+            <div class="col-4">
+                <button type="submit" type="radio" class="btn btn-primary">Register</button>
+            </div>
+        </div>
+    </div>
+</form>
+</body>
+</html>
