@@ -34,7 +34,7 @@ def captcha_enable():
 @app.route("/task5/test/disable")
 def captcha_disable():
     resp = make_response(render_template('disable.html'))
-    resp.set_cookie("auto", "False")
+    resp.set_cookie("auto", "True")
     return resp
 
 
