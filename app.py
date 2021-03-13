@@ -23,45 +23,46 @@ app.secret_key = 'yus1'
 # cur.execute("CREATE TABLE data(email varchar(64),password varchar(64),code varchar(64),status varchar(64))")
 conn.commit()
 
+@app.route("/task5/test/enable")
+def captcha_enable():
+    resp = make_response(render_template('enable.html'))
+    resp.set_cookie("auto", "True")
+    return resp
 
-# @app.route("/task5/test/enable")
-# def captcha_enable():
-#     resp = make_response(render_template('enable.html'))
-#     resp.set_cookie("auto", "True")
-#     return resp
+
+@app.route("/task5/test/disable")
+def captcha_disable():
+    resp = make_response(render_template('disable.html'))
+    resp.set_cookie("auto", "False")
+    return resp
+
+# @app.route('/task5/test/enable')
+# def enable():
+#     session['enable'] = 'enable'
+#     return redirect(url_for('sign_up'))
 #
 #
-# @app.route("/task5/test/disable")
-# def captcha_disable():
-#     resp = make_response(render_template('disable.html'))
-#     resp.set_cookie("auto", "False")
-#     return resp
-
-@app.route('/task5/test/enable')
-def enable():
-    session['enable'] = 'enable'
-    return redirect(url_for('sign_up'))
-
-
-@app.route('/task5/test/disable')
-def disable():
-    session['enable'] = 'disable'
-    return redirect(url_for('sign_up'))
+# @app.route('/task5/test/disable')
+# def disable():
+#     session['enable'] = 'disable'
+#     return redirect(url_for('sign_up'))
 
 
 @app.route("/task5/sign-up/", methods=["GET", "POST"])
 def sign_up():
     if request.method == 'POST':
-
         captcha_response = request.form['g-recaptcha-response']
         site_key = "6Leig10aAAAAAOb62ZbsGklzVXmpWhHcMuwHhzRC"
+        auto = request.cookies.get('auto')
+        if auto == 'True':
+            site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
         email = request.form.get('email')
         password = request.form.get('password')
         password2 = request.form.get('password2')
         su = rnd.choice(string.ascii_letters) + rnd.choice(string.ascii_letters) + str(rnd.randint(1000, 10000))
 
         status, msg, msg2, msg3 = "ok", '', '', ''
-        if not is_human(captcha_response):
+        if auto == 'False':
             status, msg = "false", 'Botyara!'
         else:
             cur.execute(f"SELECT email from data WHERE email='{email}'")
@@ -89,10 +90,8 @@ def sign_up():
     if request.method == 'GET':
         auto = request.cookies.get('auto')
         if auto == 'True':
-            secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
             site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
         else:
-            secret_key = '6Leig10aAAAAAGc9BuyWuqaSE5nLNja1HYkBPwmY'
             site_key = '6Leig10aAAAAAOb62ZbsGklzVXmpWhHcMuwHhzRC'
         return render_template('signup.html', site_key=site_key)
 
@@ -149,18 +148,8 @@ def is_human(captcha_response):
         secret_key = '6Leig10aAAAAAGc9BuyWuqaSE5nLNja1HYkBPwmY'
         site_key = '6Leig10aAAAAAOb62ZbsGklzVXmpWhHcMuwHhzRC'
 
-    captcha_data = {'secret': secret_key,
-                    'response': captcha_response}
-    requests.post('https://www.google.com/recaptcha/api/siteverify', data=captcha_data)
-
-
-def is_human(captcha_response):
-    if session.get('enable', 'disabled') != 'enable':
-        s = '6Leig10aAAAAAOb62ZbsGklzVXmpWhHcMuwHhzRC'
-    else:
-        s = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
-    payload = {'response': captcha_response, 'secret': s}
-    response = requests.post("https://www.google.com/recaptcha/api/siteverify", payload)
+    captcha_data = {'secret': site_key, 'response': captcha_response}
+    response = requests.post('https://www.google.com/recaptcha/api/siteverify', data=captcha_data)
     response_text = json.loads(response.text)
     return response_text['success']
 
