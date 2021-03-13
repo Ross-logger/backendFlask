@@ -88,9 +88,6 @@ def sign_up():
         if auto == 'True':
             secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
             site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
-        else:
-            secret_key = '6Leig10aAAAAAGc9BuyWuqaSE5nLNja1HYkBPwmY'
-            site_key = '6Leig10aAAAAAOb62ZbsGklzVXmpWhHcMuwHhzRC'
         return render_template('signup.html', site_key=site_key)
 
 
