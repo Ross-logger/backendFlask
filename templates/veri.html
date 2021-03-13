@@ -17,16 +17,16 @@
 {%if msg3 != '' %}
 <h1>{{msg3}}</h1>
 {%endif%}
-<form method="POST" id="create">
+<form method="POST" id="sign-up">
     <div style="margin-top: 250px;">
         <div class="container-fluid" text-align: center>
             <div>
-                <h5><p class="text-center">Email<input type="text" value="{{email}}"></p>
+                <h5><p class="text-center" id="email">Email<input type="text" value="{{email}}"></p>
                 </h5>
             </div>
             <div>
-                <h5><p class="text-center">Pswd <input type="password" placeholder="Password" name="password"/></p></h5>
-                <h5><p class="text-center">Pswd <input type="password" placeholder="Password again" name="password2"/></p></h5>
+                <h5><p class="text-center" id="password">Pswd <input type="password" placeholder="Password" name="password"/></p></h5>
+                <h5><p class="text-center" id="password2">Pswd <input type="password" placeholder="Password again" name="password2"/></p></h5>
             </div>
         </div>
     </div>
