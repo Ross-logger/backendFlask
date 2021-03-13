@@ -121,10 +121,10 @@ def verification(email, code):
             cur.execute(
                 f"INSERT INTO  data (email,password,status) values ('{email}','{md5(password.encode('utf-8')).hexdigest()}','veri')")
             conn.commit()
-            return render_template('after_signin.html')
+            return redirect(url_for('task5'))
         else:
             msg = 'Passwords are not similar!Or you have already registred! '
-        return render_template('veri.html', site_key=site_key, msg=msg, email=email)
+            return render_template('veri.html', site_key=site_key, msg=msg, email=email)
     if request.method == 'GET':
         return render_template('veri.html', site_key=site_key, email=email)
 
