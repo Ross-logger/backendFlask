@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, make_response, session
-import json , random as rnd, requests, psycopg2, os, string, smtplib
+import json, random as rnd, requests, psycopg2, os, string, smtplib
 from hashlib import md5
 from email.message import EmailMessage
 from datetime import datetime
@@ -24,34 +24,37 @@ app.secret_key = 'yus1'
 conn.commit()
 
 
-@app.route("/task5/test/enable")
-def captcha_enable():
-    resp = make_response(render_template('enable.html'))
-    resp.set_cookie("auto", "True")
-    return resp
+# @app.route("/task5/test/enable")
+# def captcha_enable():
+#     resp = make_response(render_template('enable.html'))
+#     resp.set_cookie("auto", "True")
+#     return resp
+#
+#
+# @app.route("/task5/test/disable")
+# def captcha_disable():
+#     resp = make_response(render_template('disable.html'))
+#     resp.set_cookie("auto", "False")
+#     return resp
+
+@app.route('/task5/test/enable')
+def enable():
+    session['enable'] = 'enable'
+    return redirect(url_for('sign_up'))
 
 
-@app.route("/task5/test/disable")
-def captcha_disable():
-    resp = make_response(render_template('disable.html'))
-    resp.set_cookie("auto", "True")
-    return resp
+@app.route('/task5/test/disable')
+def disable():
+    session['enable'] = 'disable'
+    return redirect(url_for('sign_up'))
 
 
 @app.route("/task5/sign-up/", methods=["GET", "POST"])
 def sign_up():
     if request.method == 'POST':
-        if request.cookies.get('auto') == "True":
-            secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
-            site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
-        else:
-            secret_key = '6Leig10aAAAAAGc9BuyWuqaSE5nLNja1HYkBPwmY'
-            site_key = '6Leig10aAAAAAOb62ZbsGklzVXmpWhHcMuwHhzRC'
+
         captcha_response = request.form['g-recaptcha-response']
-        captcha_data = {'secret': secret_key,
-                        'response': captcha_response}
-        requests.post('https://www.google.com/recaptcha/api/siteverify', data=captcha_data)
-        captcha_response = request.form['g-recaptcha-response']
+        site_key = "6Leig10aAAAAAOb62ZbsGklzVXmpWhHcMuwHhzRC"
         email = request.form.get('email')
         password = request.form.get('password')
         password2 = request.form.get('password2')
@@ -88,6 +91,9 @@ def sign_up():
         if auto == 'True':
             secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
             site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+        else:
+            secret_key = '6Leig10aAAAAAGc9BuyWuqaSE5nLNja1HYkBPwmY'
+            site_key = '6Leig10aAAAAAOb62ZbsGklzVXmpWhHcMuwHhzRC'
         return render_template('signup.html', site_key=site_key)
 
 
@@ -136,7 +142,27 @@ def sign_in():
 
 
 def is_human(captcha_response):
-    return captcha_response != ''
+    if request.cookies.get('auto') == "True":
+        secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
+        site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+    else:
+        secret_key = '6Leig10aAAAAAGc9BuyWuqaSE5nLNja1HYkBPwmY'
+        site_key = '6Leig10aAAAAAOb62ZbsGklzVXmpWhHcMuwHhzRC'
+
+    captcha_data = {'secret': secret_key,
+                    'response': captcha_response}
+    requests.post('https://www.google.com/recaptcha/api/siteverify', data=captcha_data)
+
+
+def is_human(captcha_response):
+    if session.get('enable', 'disabled') != 'enable':
+        s = '6Leig10aAAAAAOb62ZbsGklzVXmpWhHcMuwHhzRC'
+    else:
+        s = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
+    payload = {'response': captcha_response, 'secret': s}
+    response = requests.post("https://www.google.com/recaptcha/api/siteverify", payload)
+    response_text = json.loads(response.text)
+    return response_text['success']
 
 
 @app.route('/task5/work/', methods=['GET', 'POST'])
