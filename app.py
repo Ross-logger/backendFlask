@@ -23,6 +23,7 @@ app.secret_key = 'yus1'
 # cur.execute("CREATE TABLE data(email varchar(64),password varchar(64),code varchar(64),status varchar(64))")
 conn.commit()
 
+
 @app.route("/task5/test/enable")
 def captcha_enable():
     resp = make_response(render_template('enable.html'))
@@ -35,6 +36,7 @@ def captcha_disable():
     resp = make_response(render_template('disable.html'))
     resp.set_cookie("auto", "False")
     return resp
+
 
 # @app.route('/task5/test/enable')
 # def enable():
@@ -62,7 +64,7 @@ def sign_up():
         su = rnd.choice(string.ascii_letters) + rnd.choice(string.ascii_letters) + str(rnd.randint(1000, 10000))
 
         status, msg, msg2, msg3 = "ok", '', '', ''
-        if auto == 'False':
+        if is_human(captcha_response) == 'False':
             status, msg = "false", 'Botyara!'
         else:
             cur.execute(f"SELECT email from data WHERE email='{email}'")
@@ -73,14 +75,13 @@ def sign_up():
         if status == "ok":
             # email_msg = f"<p><a href=/task5/verification/{email}/{su}/>Congrats!Your activation link here: https://limp.herokuapp.com/task5/verification/{email}/{su}</a></p>"
             msg = EmailMessage()
-            msg.set_content("Congrats!Your activation link: " + 'http://limp.herokuapp.com/task5/sign-up/' + su)
+            msg.set_content("Congrats!Your activation link: " + 'https://limp.herokuapp.com/task5/verification/' + email + '/' + su)
             msg['Subject'] = 'Click to confirm your email'
             msg['From'] = 'no-reply@limp.herokuapp.com'
             msg['To'] = f'{email}'
             s = smtplib.SMTP(host='b.li2sites.ru', port=30025)
             s.send_message(msg)
             s.quit()
-        if status == "ok":
             cur.execute(
                 f"INSERT INTO  data (email,password,code,status) values ('{email}','{md5(password.encode('utf-8')).hexdigest()}','{su}','not_veri')")
             conn.commit()
@@ -96,7 +97,21 @@ def sign_up():
         return render_template('signup.html', site_key=site_key)
 
 
-@app.route("/task5/verification/<email>/<code>/", methods=["GET", "POST"])
+def is_human(captcha_response):
+    if request.cookies.get('auto') == "True":
+        secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
+        site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+    else:
+        secret_key = '6Leig10aAAAAAGc9BuyWuqaSE5nLNja1HYkBPwmY'
+        site_key = '6Leig10aAAAAAOb62ZbsGklzVXmpWhHcMuwHhzRC'
+
+    captcha_data = {'secret': site_key, 'response': captcha_response}
+    response = requests.post('https://www.google.com/recaptcha/api/siteverify', data=captcha_data)
+    response_text = json.loads(response.text)
+    return response_text['success']
+
+
+@app.route("/task5/verification/<email>/<code>", methods=["GET", "POST"])
 def verification(email, code):
     if request.method == 'POST':
         password = request.form.get('password')
@@ -138,20 +153,6 @@ def sign_in():
         return render_template('login.html', status=status, msg=msg, msg2=msg2, msg3=msg3)
     if request.method == 'GET':
         return render_template('login.html')
-
-
-def is_human(captcha_response):
-    if request.cookies.get('auto') == "True":
-        secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
-        site_key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
-    else:
-        secret_key = '6Leig10aAAAAAGc9BuyWuqaSE5nLNja1HYkBPwmY'
-        site_key = '6Leig10aAAAAAOb62ZbsGklzVXmpWhHcMuwHhzRC'
-
-    captcha_data = {'secret': site_key, 'response': captcha_response}
-    response = requests.post('https://www.google.com/recaptcha/api/siteverify', data=captcha_data)
-    response_text = json.loads(response.text)
-    return response_text['success']
 
 
 @app.route('/task5/work/', methods=['GET', 'POST'])
