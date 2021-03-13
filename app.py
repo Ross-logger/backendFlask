@@ -11,7 +11,7 @@ conn = psycopg2.connect(dbname='d9phncea8bbook', user='irzyivcngwtzbb',
                         host='ec2-52-50-171-4.eu-west-1.compute.amazonaws.com', port=5432)
 cur = conn.cursor()
 # print(cur.execute("select * from test"))
-# print(cur.execute("CREATE TABLE users ( ID SERIAL primary key,time varchar(64),ip varchar(64), email varchar(64))"))
+#  print(cur.execute("CREATE TABLE users ( ID SERIAL primary key,time varchar(64),ip varchar(64), email varchar(64))"))
 # print(cur.execute("DROP TABLE worker"))
 # print(cur.fetchall())
 # Make the changes to the database persistent
@@ -67,9 +67,9 @@ def sign_up():
                 status = "false"
         conn.commit()
         if status == "ok":
-            email_msg = f"<p><a href=/task5/verification/{email}/{su}/>Congrats!Your activation link here: https://limp.herokuapp.com/task5/verification/{email}/{su}</a></p>"
+            # email_msg = f"<p><a href=/task5/verification/{email}/{su}/>Congrats!Your activation link here: https://limp.herokuapp.com/task5/verification/{email}/{su}</a></p>"
             msg = EmailMessage()
-            msg.set_content(email_msg)
+            msg.set_content("Congrats!Your activation link: " + 'http://limp.herokuapp.com/task5/sign-up/' + su)
             msg['Subject'] = 'Click to confirm your email'
             msg['From'] = 'no-reply@limp.herokuapp.com'
             msg['To'] = f'{email}'
