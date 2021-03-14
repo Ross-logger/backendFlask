@@ -75,7 +75,8 @@ def sign_up():
         if status == "ok":
             # email_msg = f"<p><a href=/task5/verification/{email}/{su}/>Congrats!Your activation link here: https://limp.herokuapp.com/task5/verification/{email}/{su}</a></p>"
             msg = EmailMessage()
-            msg.set_content("Congrats!Your activation link: " + 'https://limp.herokuapp.com/task5/verification/' + email + '/' + su)
+            msg.set_content(
+                "Congrats!Your activation link: " + 'https://limp.herokuapp.com/task5/verification/' + email + '/' + su)
             msg['Subject'] = 'Click to confirm your email'
             msg['From'] = 'no-reply@limp.herokuapp.com'
             msg['To'] = f'{email}'
@@ -148,7 +149,6 @@ def sign_in():
                 msg2 = "RETARD!Your password is wrong!"
                 status = "false"
             else:
-                msg3 = "Succes!RAMil abiy odobryaet!"
                 return redirect(url_for('task5'))
         return render_template('login.html', status=status, msg=msg, msg2=msg2, msg3=msg3)
     if request.method == 'GET':
@@ -157,16 +157,17 @@ def sign_in():
 
 @app.route('/task5/work/', methods=['GET', 'POST'])
 def work():
-    email = session.get('user_email')
+    email = session['user_email']
+    # if email is None:
+    #     return redirect(url_for('sign_in'))
     if request.method == 'POST':
         n = request.form['n']
         time = datetime.now()
         cur.execute(
-            f"INSERT INTO worker (email, time, n, p, q, status, time_started,time_ended) VALUES ('{str(email)}', '', {n}, '0', '0', 'in ochered', '{time}', '')")
-        conn.commit()
-    cur.execute(f"SELECT time, n, p, q, status, time_started ,time_ended FROM worker WHERE email = '{email}'")
+            f"INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{email}', '', {n}, 0, 0, 'in queue', '{time}', '')")
+    cur.execute(f"SELECT time, n, p, q, status, time_started, time_ended FROM worker WHERE email = '{email}'")
     ans = cur.fetchall()
-    return render_template('worker.html', ans=ans, email=email)
+    return render_template('worker.html', ans=ans)
 
 
 @app.route("/task5/sign-out/")
@@ -186,6 +187,7 @@ def task5():
     cur.execute(f"SELECT time,ip from users where email='{email}'")
     array = cur.fetchall()
     return render_template('task5.html', array=array)
+
 
 
 if __name__ == '__main__':
