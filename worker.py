@@ -1,14 +1,11 @@
 import psycopg2
-import time, requests
+import time
 from math import ceil, sqrt
 from datetime import datetime
-import flask
 
 conn = psycopg2.connect(dbname='d9phncea8bbook', user='irzyivcngwtzbb',
                         password='f12c32668291295574019ce41bb71332958deaf434ad0f67a4a10d378fd9d23d',
                         host='ec2-52-50-171-4.eu-west-1.compute.amazonaws.com', port=5432)
-
-n = int(input())
 
 
 def find_prost(n):
@@ -71,20 +68,19 @@ def worker(n):
             if new_num > 10 ** 10:
                 return None
 
-print(worker(n))
 
 
 def delete_row():
-    cur.execute(f"DELETE FROM worker WHERE email = '{str(email)}' AND time_started = '{str(time_started)}'")
+    cur.execute(f"DELETE FROM worker WHERE email = '{email}' AND time_started = '{str(time_started)}'")
 
 
 while True:
     cur = conn.cursor()
-    cur.execute(f"SELECT email, n, time_started FROM worker WHERE status = 'in ochered'")
+    cur.execute("SELECT email, n, time_started FROM worker WHERE status = 'in queue';")
     ans = cur.fetchall()
     i = None
     for i in ans:
-        email, n, time_started = i
+        email, start_num, time_started = i
         break
     if i is None:
         time.sleep(5)
@@ -92,20 +88,16 @@ while True:
     time_started = datetime.strptime(time_started, '%Y-%m-%d %H:%M:%S.%f')
     delete_row()
     conn.commit()
-    cur.execute(
-        f"INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{str(email)}', '', '{str(n)}', '0', '0', 'in progress', '{str(time_started)}', '')")
+    cur.execute("INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ({}, '', {}, 0, 0, 'in progress', '{}', '')".format(str(i[1]), str(start_num), str(time_started)))
     conn.commit()
-    list = worker(n)
-    p = list[0]
-    q = list[1]
+    p, q = find_prost(start_num)
     time_ended = datetime.now()
     time_t = str(time_ended).split(' ')
     time_t = time_t[-1]
     delete_row()
     conn.commit()
-    cur.execute(
-        f"INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{str(email)}', '{str(time_t)}', '{str(n)}', '{p}', '{q}', 'finished', '{time_started}', '{time_ended}')")
+    cur.execute("INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ({}, '{}', {}, {}, {}, 'finished', '{}', '{}')".format(str(i[1]), str(time_t), str(start_num), p, q, str(time_started), str(time_ended)))
     conn.commit()
     cur.close()
-    print('next cycle')
     time.sleep(5)
+
