@@ -165,9 +165,12 @@ def work():
         time = datetime.now()
         cur.execute(
             f"INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{email}', '', {n}, 0, 0, 'in queue', '{time}', '')")
-    cur.execute(f"SELECT time, n, p, q, status, time_started, time_ended FROM worker WHERE email = '{email}'")
-    ans = cur.fetchall()
-    return render_template('worker.html', ans=ans)
+        conn.commit()
+        return redirect(url_for('work'))
+    else:
+        cur.execute(f"SELECT time, n, p, q, status, time_started, time_ended FROM worker WHERE email = '{email}'")
+        ans = cur.fetchall()
+        return render_template('worker.html', ans=ans)
 
 
 @app.route("/task5/sign-out/")
