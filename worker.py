@@ -6,10 +6,13 @@ from datetime import datetime
 conn = psycopg2.connect(dbname='d9phncea8bbook', user='irzyivcngwtzbb',
                         password='f12c32668291295574019ce41bb71332958deaf434ad0f67a4a10d378fd9d23d',
                         host='ec2-52-50-171-4.eu-west-1.compute.amazonaws.com', port=5432)
+cur = conn.cursor()
 
 
-def find_prost(n):
+def find_prime_factors(n):
+
     n = int(n)
+
     ans = []
     pos = False
 
@@ -48,56 +51,58 @@ def find_prost(n):
 
 
 def worker(n):
-    new_num = n
+    start_num = int(n)
+    new_num = start_num
     multi = 1
     added = 2
-    length = len(str(n))
+    length = len(str(start_num))
 
     while True:
-        result = find_prost(n)
-        if result is not None and str(new_num)[:length] == str(n)[:length]:
+        result = find_prime_factors(new_num)
+        if result is not None and str(new_num)[:length] == str(start_num)[:length]:
             return result
         else:
-            if added < multi - 1:
+            if added < multi-1:
                 new_num += 1
                 added += 1
             else:
                 multi *= 10
-                new_num = multi * n
+                new_num = multi*start_num
                 added = 0
-            if new_num > 10 ** 10:
+            if new_num > 10**10:
                 return None
-
-
 
 def delete_row():
     cur.execute(f"DELETE FROM worker WHERE email = '{email}' AND time_started = '{str(time_started)}'")
 
 
 while True:
-    cur = conn.cursor()
+    print('############ next cycle')
     cur.execute("SELECT email, n, time_started FROM worker WHERE status = 'in queue';")
-    ans = cur.fetchall()
-    i = None
-    for i in ans:
-        email, start_num, time_started = i
-        break
-    if i is None:
-        time.sleep(5)
-        continue
-    time_started = datetime.strptime(time_started, '%Y-%m-%d %H:%M:%S.%f')
-    delete_row()
-    conn.commit()
-    cur.execute("INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ({}, '', {}, 0, 0, 'in progress', '{}', '')".format(str(i[1]), str(start_num), str(time_started)))
-    conn.commit()
-    p, q = find_prost(start_num)
-    time_ended = datetime.now()
-    time_t = str(time_ended).split(' ')
-    time_t = time_t[-1]
-    delete_row()
-    conn.commit()
-    cur.execute("INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ({}, '{}', {}, {}, {}, 'finished', '{}', '{}')".format(str(i[1]), str(time_t), str(start_num), p, q, str(time_started), str(time_ended)))
-    conn.commit()
-    cur.close()
+    answer = cur.fetchall()
+    print(answer)
+    if answer != []:
+        answer = answer[0]
+        email = answer[0]
+        start_num = answer[1]
+        time_started = answer[2]
+        print(start_num)
+        time_started = datetime.strptime(time_started, '%Y-%m-%d %H:%M:%S.%f')
+        delete_row()
+        conn.commit()
+        cur.execute("INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '', {}, 0, 0, 'in progress', '{}', '')".format(str(email), str(start_num), str(time_started)))
+        conn.commit()
+        res = worker(start_num)
+        print(res)
+        p, q = res[0], res[1]
+        time_ended = datetime.now()
+        print(time_ended)
+        print(str(time_ended))
+        time_t = str(time_ended).split(' ')
+        time_t = time_t[-1]
+        delete_row()
+        conn.commit()
+        cur.execute("INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '{}', {}, {}, {}, 'finished', '{}', '{}')".format(str(email), str(time_t), str(start_num), p, q, str(time_started), str(time_ended)))
+        conn.commit()
     time.sleep(5)
 
