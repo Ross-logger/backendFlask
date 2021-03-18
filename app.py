@@ -6,12 +6,12 @@ from datetime import datetime
 
 site_key = os.environ['site_key']
 
-conn = psycopg2.connect(dbname='d9phncea8bbook', user='irzyivcngwtzbb',
-                        password='f12c32668291295574019ce41bb71332958deaf434ad0f67a4a10d378fd9d23d',
-                        host='ec2-52-50-171-4.eu-west-1.compute.amazonaws.com', port=5432)
+conn = psycopg2.connect(dbname='d62q832uhh9225', user='urgttpxzaoisdo',
+                        password='5fa49425b2ca75ba17f382fb0a94b6fe2c4156585c7a407953cb55b7524cb8ad',
+                        host='ec2-54-195-76-73.eu-west-1.compute.amazonaws.com', port=5432)
 cur = conn.cursor()
 # print(cur.execute("select * from test"))
-#  print(cur.execute("CREATE TABLE users ( ID SERIAL primary key,time varchar(64),ip varchar(64), email varchar(64))"))
+# print(cur.execute("CREATE TABLE users ( ID SERIAL primary key,time varchar(64),ip varchar(64), email varchar(64))"))
 # print(cur.execute("DROP TABLE worker"))
 # print(cur.fetchall())
 # Make the changes to the database persistent
