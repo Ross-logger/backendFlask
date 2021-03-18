@@ -3,9 +3,9 @@ import time
 from math import ceil, sqrt
 from datetime import datetime
 
-conn = psycopg2.connect(dbname='d9phncea8bbook', user='irzyivcngwtzbb',
-                        password='f12c32668291295574019ce41bb71332958deaf434ad0f67a4a10d378fd9d23d',
-                        host='ec2-52-50-171-4.eu-west-1.compute.amazonaws.com', port=5432)
+conn = psycopg2.connect(dbname='d62q832uhh9225', user='urgttpxzaoisdo',
+                        password='5fa49425b2ca75ba17f382fb0a94b6fe2c4156585c7a407953cb55b7524cb8ad',
+                        host='ec2-54-195-76-73.eu-west-1.compute.amazonaws.com', port=5432)
 cur = conn.cursor()
 
 
@@ -73,6 +73,9 @@ def worker(n):
                 return None
 
 
+def delete_row():
+    cur.execute("DELETE FROM worker WHERE email= '{}' AND time_started = '{}';".format(email, str(time_started)))
+
 while True:
     print('############ next cycle')
     cur.execute("SELECT email, n, time_started FROM worker WHERE status = 'in queue';")
@@ -83,6 +86,7 @@ while True:
         email = answer[0]
         start_num = answer[1]
         time_started = answer[2]
+        delete_row()
         print(start_num)
         time_started = datetime.strptime(time_started, '%Y-%m-%d %H:%M:%S.%f')
         conn.commit()
@@ -96,6 +100,7 @@ while True:
         print(str(time_ended))
         time_t = str(time_ended).split(' ')
         time_t = time_t[-1]
+        delete_row()
         conn.commit()
         cur.execute("INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '{}', {}, {}, {}, 'finished', '{}', '{}')".format(str(email), str(time_t), str(start_num), p, q, str(time_started), str(time_ended)))
         conn.commit()
