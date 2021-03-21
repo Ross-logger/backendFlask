@@ -3,6 +3,8 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+      <style>
+  </style>
 </head>
 <form class="form-inline" id="work" method="post" action="">
   <div class="form-group mb-2">
@@ -22,6 +24,7 @@
         <th scope="col">Elapsed</th>
     </tr>
   </thead>
+
   <tbody>
     {% for time, n, p, q, status, start, finish in ans %}
       <tr>
@@ -30,8 +33,10 @@
           <td>{{ p }}</td>
           <td>{{ q }}</td>
           <td>{{ status }}</td>
-          <td>{{ start }} </td>
+          <td>{{ elapsed }} </td>
       </tr>
+    {% else %}
+        <td id="#table-warning" bgcolor="yellow" colspan="6" class="col1"><em>no users found please type something aaaaaaaa</em></td>
     {% endfor %}
   </tbody>
 </table>
