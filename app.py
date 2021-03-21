@@ -118,6 +118,7 @@ def is_human(captcha_response):
 
 @app.route("/task5/verification/<email>/<code>", methods=["GET", "POST"])
 def verification(email, code):
+    session['user_email'] = email
     if request.method == 'POST':
         password = request.form.get('password')
         password2 = request.form.get('password2')
