@@ -14,7 +14,7 @@
 
 </form>
 <table class="table" id="work">
-  <thead>
+  <thead id="work">
     <tr>
         <th scope="col">Time</th>
         <th scope="col">N</th>
@@ -25,7 +25,7 @@
     </tr>
   </thead>
 
-  <tbody>
+  <tbody id="work">
     {% for time, n, p, q, status, start, finish in ans %}
       <tr>
           <td>{{ start }}</td>
