@@ -136,8 +136,9 @@ def verification(email, code):
 
 @app.route("/task5/sign-in/", methods=["GET", "POST"])
 def sign_in():
+    email = request.form.get('email')
+    session['user_email'] = email
     if request.method == "POST":
-        email = request.form.get('email')
         password = md5(request.form.get('password').encode()).hexdigest()
         status, msg, msg2, msg3 = "ok", "", "", ""
         session['user_email'] = email
