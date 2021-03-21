@@ -3,6 +3,8 @@ import json, random as rnd, requests, psycopg2, os, string, smtplib
 from hashlib import md5
 from email.message import EmailMessage
 from datetime import datetime
+import time
+
 
 site_key = os.environ['site_key']
 
@@ -18,6 +20,8 @@ cur = conn.cursor()
 conn.commit()
 app = Flask(__name__)
 app.secret_key = 'yus1'
+from werkzeug.middleware.proxy_fix import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # cur.execute("CREATE TABLE worker ( ID SERIAL primary key,email varchar(64),time varchar(64),N int, p int,q int,status varchar(64),time_started varchar(64),time_ended varchar(64))")
 # cur.execute("CREATE TABLE data(email varchar(64),password varchar(64),code varchar(64),status varchar(64))")
@@ -170,7 +174,11 @@ def work():
     else:
         cur.execute(f"SELECT time, n, p, q, status, time_started, time_ended FROM worker WHERE email = '{email}'")
         ans = cur.fetchall()
-        return render_template('worker.html', ans=ans)
+        if ans !=[]:
+            elapsed = datetime.strptime(ans[0][6], "%Y-%m-%d %H:%M:%S.%f") - datetime.strptime(ans[0][5], "%Y-%m-%d %H:%M:%S.%f")
+            print(elapsed.total_seconds())
+            return render_template('worker.html', ans=ans,elapsed=elapsed.total_seconds())
+    return render_template('worker.html')
 
 
 @app.route("/task5/sign-out/")
