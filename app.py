@@ -195,7 +195,7 @@ def task5():
     time = datetime.now()
     cur.execute(f"INSERT INTO users (time, ip,email) values ('{time}','{ip}','{email}')")
     conn.commit()
-    cur.execute(f"SELECT time,ip from users where email='{email}' ORDER BY ip desc ")
+    cur.execute(f"SELECT time,ip from users where email='{email}' ORDER BY id desc ")
     array = cur.fetchall()
     return render_template('task5.html', array=array)
 
