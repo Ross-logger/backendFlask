@@ -178,7 +178,7 @@ def work():
 
         # elapsed = datetime.strptime(ans[0][6]) - datetime.strptime(ans[0][5])
         # print(elapsed.total_seconds())
-        elapsed =round(float(ans[0][6]), 8)
+        elapsed = ans[0][6]
         return render_template('worker.html', ans=ans,elapsed=elapsed)
     return render_template('worker.html')
 
