@@ -175,9 +175,11 @@ def work():
         cur.execute(f"SELECT time, n, p, q, status, time_started, time_ended FROM worker WHERE email = '{email}'")
         ans = cur.fetchall()
     if ans !=[]:
-        elapsed = datetime.strptime(ans[0][6], "%Y-%m-%d %H:%M:%S.%f") - datetime.strptime(ans[0][5], "%Y-%m-%d %H:%M:%S.%f")
-        print(elapsed.total_seconds())
-        return render_template('worker.html', ans=ans,elapsed=elapsed.total_seconds())
+
+        # elapsed = datetime.strptime(ans[0][6]) - datetime.strptime(ans[0][5])
+        # print(elapsed.total_seconds())
+        elapsed =round(float(ans[0][6]), 8)
+        return render_template('worker.html', ans=ans,elapsed=elapsed)
     return render_template('worker.html')
 
 
