@@ -10,7 +10,6 @@ cur = conn.cursor()
 
 
 def find_prime_factors(n):
-
     n = int(n)
 
     ans = []
@@ -62,19 +61,20 @@ def worker(n):
         if result is not None and str(new_num)[:length] == str(start_num)[:length]:
             return result
         else:
-            if added < multi-1:
+            if added < multi - 1:
                 new_num += 1
                 added += 1
             else:
                 multi *= 10
-                new_num = multi*start_num
+                new_num = multi * start_num
                 added = 0
-            if new_num > 10**10:
+            if new_num > 10 ** 10:
                 return None
 
 
 def delete_row():
     cur.execute("DELETE FROM worker WHERE email= '{}' AND time_started = '{}';".format(email, str(time_started)))
+
 
 while True:
     print('############ next cycle')
@@ -86,23 +86,23 @@ while True:
         email = answer[0]
         start_num = answer[1]
         time_started = answer[2]
+        time_started=datetime.strptime(time_started,"%Y-%m-%d %H:%M:%S.%f")
         delete_row()
         print(start_num)
-        time_started = datetime.strptime(time_started, '%Y-%m-%d %H:%M:%S.%f')
+        time_started_work = time.time()
         conn.commit()
-        cur.execute("INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '', {}, 0, 0, 'Progressing', '{}', '')".format(str(email), str(start_num), str(time_started)))
+        cur.execute(
+            "INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '', {}, 0, 0, 'Progressing', '{}', '')".format(
+                str(email), str(start_num), str(time_started)))
         conn.commit()
         res = worker(start_num)
         print(res)
         p, q = res[0], res[1]
-        time_ended = datetime.now()
-        print(time_ended)
-        print(str(time_ended))
-        time_t = str(time_ended).split(' ')
-        time_t = time_t[-1]
+        elapsed_time = time.time() - time_started_work
         delete_row()
         conn.commit()
-        cur.execute("INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '{}', {}, {}, {}, 'Done', '{}', '{}')".format(str(email), str(time_t), str(start_num), p, q, str(time_started), str(time_ended)))
+        cur.execute(
+            "INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '{}', {}, {}, {}, 'Done', '{}', '{}')".format(
+                str(email), str(time_started), str(start_num), p, q, str(time_started_work), str(elapsed_time)))
         conn.commit()
     time.sleep(3)
-
