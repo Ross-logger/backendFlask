@@ -78,7 +78,7 @@ def delete_row():
 
 while True:
     print('############ next cycle')
-    cur.execute("SELECT email, n, time_started FROM worker WHERE status = 'in queue';")
+    cur.execute("SELECT email, n, time_started FROM worker WHERE status = 'Queued';")
     answer = cur.fetchall()
     print(answer)
     if answer != []:
@@ -90,7 +90,7 @@ while True:
         print(start_num)
         time_started = datetime.strptime(time_started, '%Y-%m-%d %H:%M:%S.%f')
         conn.commit()
-        cur.execute("INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '', {}, 0, 0, 'in progress', '{}', '')".format(str(email), str(start_num), str(time_started)))
+        cur.execute("INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '', {}, 0, 0, 'Progressing', '{}', '')".format(str(email), str(start_num), str(time_started)))
         conn.commit()
         res = worker(start_num)
         print(res)
@@ -102,7 +102,7 @@ while True:
         time_t = time_t[-1]
         delete_row()
         conn.commit()
-        cur.execute("INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '{}', {}, {}, {}, 'finished', '{}', '{}')".format(str(email), str(time_t), str(start_num), p, q, str(time_started), str(time_ended)))
+        cur.execute("INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '{}', {}, {}, {}, 'Done', '{}', '{}')".format(str(email), str(time_t), str(start_num), p, q, str(time_started), str(time_ended)))
         conn.commit()
     time.sleep(3)
 
