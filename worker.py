@@ -104,5 +104,5 @@ while True:
         conn.commit()
         cur.execute("INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '{}', {}, {}, {}, 'finished', '{}', '{}')".format(str(email), str(time_t), str(start_num), p, q, str(time_started), str(time_ended)))
         conn.commit()
-    time.sleep(5)
+    time.sleep(3)
 
