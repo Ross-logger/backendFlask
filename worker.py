@@ -86,23 +86,29 @@ while True:
         email = answer[0]
         start_num = answer[1]
         time_started = answer[2]
-        time_started=datetime.strptime(time_started,"%Y-%m-%d %H:%M:%S.%f")
         delete_row()
         print(start_num)
-        time_started_work = time.time()
+        time_t = time.time()
         conn.commit()
         cur.execute(
             "INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '', {}, 0, 0, 'Progressing', '{}', '')".format(
                 str(email), str(start_num), str(time_started)))
         conn.commit()
+        time_ended = time.time()
         res = worker(start_num)
         print(res)
         p, q = res[0], res[1]
-        elapsed_time = time.time() - time_started_work
+        print(str(time_ended))
+        # time_t = str(time_ended).split(' ')
+        # time_t = time.time(time_t[-1])
+        # time_t2 = str(time_started).split(' ')
+        # time_t2 = time.time(time_t2[-1])
+        time_t = round(float(time_ended - time_t),8)
+        print(time_t)
         delete_row()
         conn.commit()
         cur.execute(
             "INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '{}', {}, {}, {}, 'Done', '{}', '{}')".format(
-                str(email), str(time_started), str(start_num), p, q, str(time_started_work), str(elapsed_time)))
+                str(email), str(time_t), str(start_num), p, q, str(time_started), str(time_t)))
         conn.commit()
     time.sleep(3)
