@@ -5,7 +5,6 @@ from email.message import EmailMessage
 from datetime import datetime
 import time
 
-
 site_key = os.environ['site_key']
 
 conn = psycopg2.connect(dbname='d62q832uhh9225', user='urgttpxzaoisdo',
@@ -21,6 +20,7 @@ conn.commit()
 app = Flask(__name__)
 app.secret_key = 'yus1'
 from werkzeug.middleware.proxy_fix import ProxyFix
+
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # cur.execute("CREATE TABLE worker ( ID SERIAL primary key,email varchar(64),time varchar(64),N int, p int,q int,status varchar(64),time_started varchar(64),time_ended varchar(64))")
@@ -172,14 +172,14 @@ def work():
         conn.commit()
         return redirect(url_for('work'))
     else:
-        cur.execute(f"SELECT time, n, p, q, status, time_started, time_ended FROM worker WHERE email = '{email}'")
+        cur.execute(f"SELECT time, n, p, q, status, time_started, time_ended FROM worker WHERE email = '{email}' ORDER BY time_started desc")
+        conn.commit()
         ans = cur.fetchall()
-    if ans !=[]:
-
-        # elapsed = datetime.strptime(ans[0][6]) - datetime.strptime(ans[0][5])
-        # print(elapsed.total_seconds())
+    if ans != []:
         elapsed = ans[0][6]
-        return render_template('worker.html', ans=ans,elapsed=elapsed)
+        # elapsed = datetime.strptime(ans[0][6],'%Y-%m-%d %H:%M:%S.%f') - datetime.strptime(ans[0][5],'%Y-%m-%d %H:%M:%S.%f')       time_ended = time.time()
+        # print(elapsed.total_seconds())
+        return render_template('worker.html', ans=ans, elapsed=elapsed)
     return render_template('worker.html')
 
 
@@ -200,7 +200,6 @@ def task5():
     cur.execute(f"SELECT time,ip from users where email='{email}' ORDER BY id desc ")
     array = cur.fetchall()
     return render_template('task5.html', array=array)
-
 
 
 if __name__ == '__main__':
