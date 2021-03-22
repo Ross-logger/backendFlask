@@ -161,23 +161,23 @@ def sign_in():
 
 @app.route('/task5/work/', methods=['GET', 'POST'])
 def work():
-    email = session['user_email']
+    email = session.get('user_email')
     # if email is None:
     #     return redirect(url_for('sign_in'))
     if request.method == 'POST':
         n = request.form['n']
         time = datetime.now()
         cur.execute(
-            f"INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{email}', '', {n}, 0, 0, 'in queue', '{time}', '')")
+            f"INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{email}', '', {n}, 0, 0, 'Queued', '{time}', '')")
         conn.commit()
         return redirect(url_for('work'))
     else:
         cur.execute(f"SELECT time, n, p, q, status, time_started, time_ended FROM worker WHERE email = '{email}'")
         ans = cur.fetchall()
-        if ans !=[]:
-            elapsed = datetime.strptime(ans[0][6], "%Y-%m-%d %H:%M:%S.%f") - datetime.strptime(ans[0][5], "%Y-%m-%d %H:%M:%S.%f")
-            print(elapsed.total_seconds())
-            return render_template('worker.html', ans=ans,elapsed=elapsed.total_seconds())
+    if ans !=[]:
+        elapsed = datetime.strptime(ans[0][6], "%Y-%m-%d %H:%M:%S.%f") - datetime.strptime(ans[0][5], "%Y-%m-%d %H:%M:%S.%f")
+        print(elapsed.total_seconds())
+        return render_template('worker.html', ans=ans,elapsed=elapsed.total_seconds())
     return render_template('worker.html')
 
 
