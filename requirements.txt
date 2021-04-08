@@ -5,5 +5,5 @@ num2words
 inflect
 collections
 operator
-werkzeug.security
+werkzeug
 sqlalchemy
