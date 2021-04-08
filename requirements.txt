@@ -1,7 +1,6 @@
 Flask
 gunicorn
 requests
-collections
 operator
 werkzeug
 sqlalchemy
