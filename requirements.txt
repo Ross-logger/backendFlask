@@ -4,3 +4,5 @@ requests
 num2words
 inflect
 psycopg2
+werkzeug
+sqlalchemy
