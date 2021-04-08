@@ -3,10 +3,15 @@ import time
 from math import ceil, sqrt
 from datetime import datetime
 
+from models import *
+from sqlalchemy.orm import scoped_session
+from database import Session, engine
+
 conn = psycopg2.connect(dbname='d62q832uhh9225', user='urgttpxzaoisdo',
                         password='5fa49425b2ca75ba17f382fb0a94b6fe2c4156585c7a407953cb55b7524cb8ad',
                         host='ec2-54-195-76-73.eu-west-1.compute.amazonaws.com', port=5432)
 cur = conn.cursor()
+database = Session()
 
 
 def find_prime_factors(n):
@@ -72,43 +77,32 @@ def worker(n):
                 return None
 
 
-def delete_row():
-    cur.execute("DELETE FROM worker WHERE email= '{}' AND time_started = '{}';".format(email, str(time_started)))
+# def delete_row():
+#     database.query(Worker).filter_by(email=email, time_started=time_started).delete()
+
+    # cur.execute("DELETE FROM worker WHERE email= '{}' AND time_started = '{}';".format(email, str(time_started)))
 
 
 while True:
     print('############ next cycle')
-    cur.execute("SELECT email, n, time_started FROM worker WHERE status = 'Queued';")
-    answer = cur.fetchall()
-    print(answer)
-    if answer != []:
-        answer = answer[0]
-        email = answer[0]
-        start_num = answer[1]
-        time_started = answer[2]
-        delete_row()
-        print(start_num)
-        time_t = time.time()
-        conn.commit()
-        cur.execute(
-            "INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '', {}, 0, 0, 'Progressing', '{}', '')".format(
-                str(email), str(start_num), str(time_started)))
-        conn.commit()
-        time_ended = time.time()
-        res = worker(start_num)
-        print(res)
+    answer = database.query(Worker).filter_by(status='Queued')
+    # cur.execute("SELECT email, n, time_started FROM worker WHERE status = 'Queued';")
+    # answer = cur.fetchall()
+    for att in answer:
+        att.status = 'Progressing'
+        database.add(att)
+        database.commit()
+        time_started = time.time()
+        res = worker(att.n)
         p, q = res[0], res[1]
-        print(str(time_ended))
-        # time_t = str(time_ended).split(' ')
-        # time_t = time.time(time_t[-1])
-        # time_t2 = str(time_started).split(' ')
-        # time_t2 = time.time(time_t2[-1])
-        time_t = round(float(time_ended - time_t),8)
-        print(time_t)
-        delete_row()
-        conn.commit()
-        cur.execute(
-            "INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{}', '{}', {}, {}, {}, 'Done', '{}', '{}')".format(
-                str(email), str(time_t), str(start_num), p, q, str(time_started), str(time_t)))
-        conn.commit()
-    time.sleep(3)
+        time_ended = time.time()
+        elapsed = round(time_ended - time_started, 8)
+        att.time_ended, att.status, att.p, att.q, = elapsed, 'Done', p, q
+        print(time_ended)
+        database.add(att)
+        database.commit()
+        # delete_row()
+        time_t = time.time()
+        time_ended = time.time()
+        # delete_row()
+    time.sleep(5)
