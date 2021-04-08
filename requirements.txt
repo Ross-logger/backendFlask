@@ -1,0 +1,9 @@
+Flask
+gunicorn
+requests
+num2words
+inflect
+collections
+operator
+werkzeug.security
+sqlalchemy
