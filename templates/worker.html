@@ -8,7 +8,7 @@
 </head>
 <form class="form-inline" id="work" method="post" >
   <div class="form-group mb-2">
-    <input type="text"  name="n" id="n">
+    <input type="text"  id="n" name="n">
         <input type="submit" class="btn btn-primary mb-2">
   </div>
 
@@ -20,20 +20,20 @@
         <th scope="col">N</th>
         <th scope="col">P</th>
         <th scope="col">Q</th>
-        <th scope="col">Status</th>
+        <th scope="col">Status<g/th>
         <th scope="col">Elapsed</th>
     </tr>
   </thead>
 
   <tbody id="work">
-    {% for time, n, p, q, status, start, finish in ans %}
+    {% for row in ans %}
       <tr>
-          <td>{{ start }}</td>
-          <td>{{ n }}</td>
-          <td>{{ p }}</td>
-          <td>{{ q }}</td>
-          <td>{{ status }}</td>
-          <td>{{ elapsed }} </td>
+          <td>{{ row.time }}</td>
+          <td>{{ row.n }}</td>
+          <td>{{ row.p }}</td>
+          <td>{{ row.q }}</td>
+          <td>{{ row.status }}</td>
+          <td>{{ row.time_ended }}</td>
       </tr>
     {% else %}
         <tr ><td class="table-warning"  bgcolor="yellow" colspan="6" ><em>no users found please type something aaaaaaaa</em></td></tr>
