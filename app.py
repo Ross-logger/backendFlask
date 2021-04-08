@@ -11,7 +11,7 @@ from sqlalchemy.orm import scoped_session
 import models
 from database import Session, engine
 
-site_keya = os.environ['site_keya']
+site_keya = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 
 conn = psycopg2.connect(dbname='d6rbu51aggngta', user='oomzugrngzshgq',
                         password='07ddf913052409e8ffb5fe1451a28504244e269ee506ffab18818a6ed513edc9',
