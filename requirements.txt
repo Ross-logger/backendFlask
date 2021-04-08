@@ -7,4 +7,3 @@ collections
 operator
 werkzeug
 sqlalchemy
-collections
