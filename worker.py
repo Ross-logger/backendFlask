@@ -1,18 +1,22 @@
 import psycopg2
-import time, requests
+import time
 from math import ceil, sqrt
 from datetime import datetime
-import flask
 
-conn = psycopg2.connect(dbname='d9phncea8bbook', user='irzyivcngwtzbb',
-                        password='f12c32668291295574019ce41bb71332958deaf434ad0f67a4a10d378fd9d23d',
-                        host='ec2-52-50-171-4.eu-west-1.compute.amazonaws.com', port=5432)
+from models import *
+from sqlalchemy.orm import scoped_session
+from database import Session, engine
 
-n = int(input())
+conn = psycopg2.connect(dbname='d62q832uhh9225', user='urgttpxzaoisdo',
+                        password='5fa49425b2ca75ba17f382fb0a94b6fe2c4156585c7a407953cb55b7524cb8ad',
+                        host='ec2-54-195-76-73.eu-west-1.compute.amazonaws.com', port=5432)
+cur = conn.cursor()
+database = Session()
 
 
-def find_prost(n):
+def find_prime_factors(n):
     n = int(n)
+
     ans = []
     pos = False
 
@@ -51,14 +55,15 @@ def find_prost(n):
 
 
 def worker(n):
-    new_num = n
+    start_num = int(n)
+    new_num = start_num
     multi = 1
     added = 2
-    length = len(str(n))
+    length = len(str(start_num))
 
     while True:
-        result = find_prost(n)
-        if result is not None and str(new_num)[:length] == str(n)[:length]:
+        result = find_prime_factors(new_num)
+        if result is not None and str(new_num)[:length] == str(start_num)[:length]:
             return result
         else:
             if added < multi - 1:
@@ -66,46 +71,38 @@ def worker(n):
                 added += 1
             else:
                 multi *= 10
-                new_num = multi * n
+                new_num = multi * start_num
                 added = 0
             if new_num > 10 ** 10:
                 return None
 
-print(worker(n))
 
+# def delete_row():
+#     database.query(Worker).filter_by(email=email, time_started=time_started).delete()
 
-def delete_row():
-    cur.execute(f"DELETE FROM worker WHERE email = '{str(email)}' AND time_started = '{str(time_started)}'")
+    # cur.execute("DELETE FROM worker WHERE email= '{}' AND time_started = '{}';".format(email, str(time_started)))
 
 
 while True:
-    cur = conn.cursor()
-    cur.execute(f"SELECT email, n, time_started FROM worker WHERE status = 'in ochered'")
-    ans = cur.fetchall()
-    i = None
-    for i in ans:
-        email, n, time_started = i
-        break
-    if i is None:
-        time.sleep(5)
-        continue
-    time_started = datetime.strptime(time_started, '%Y-%m-%d %H:%M:%S.%f')
-    delete_row()
-    conn.commit()
-    cur.execute(
-        f"INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{str(email)}', '', '{str(n)}', '0', '0', 'in progress', '{str(time_started)}', '')")
-    conn.commit()
-    list = worker(n)
-    p = list[0]
-    q = list[1]
-    time_ended = datetime.now()
-    time_t = str(time_ended).split(' ')
-    time_t = time_t[-1]
-    delete_row()
-    conn.commit()
-    cur.execute(
-        f"INSERT INTO worker (email, time, n, p, q, status, time_started, time_ended) VALUES ('{str(email)}', '{str(time_t)}', '{str(n)}', '{p}', '{q}', 'finished', '{time_started}', '{time_ended}')")
-    conn.commit()
-    cur.close()
-    print('next cycle')
+    print('############ next cycle')
+    answer = database.query(Worker).filter_by(status='Queued')
+    # cur.execute("SELECT email, n, time_started FROM worker WHERE status = 'Queued';")
+    # answer = cur.fetchall()
+    for att in answer:
+        att.status = 'Progressing'
+        database.add(att)
+        database.commit()
+        time_started = time.time()
+        res = worker(att.n)
+        p, q = res[0], res[1]
+        time_ended = time.time()
+        elapsed = round(time_ended - time_started, 8)
+        att.time_ended, att.status, att.p, att.q, = elapsed, 'Done', p, q
+        print(time_ended)
+        database.add(att)
+        database.commit()
+        # delete_row()
+        time_t = time.time()
+        time_ended = time.time()
+        # delete_row()
     time.sleep(5)

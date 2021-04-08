@@ -7,20 +7,20 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
 </head>
+{%if msg != ''%}
+<h1 class="text-center" style="color:red" id="error">{{msg}}</h1>
+{%endif%}
+{%if msg2 != '' %}
+<h1 id="">{{msg2}}</h1>
+{%endif%}
+{%if msg3 != '' %}
+<h1>{{msg3}}</h1>
+{%endif%}
 <body>
-{%if msg !=''%}
-<h1 class="text-center" style="color:red">{{msg}}</h1>
-{%endif%}
-{%if msg2 != ''%}
-<h1 class="text-center" style="color:red">{{msg2}}</h1>
-{%endif%}
-{%if msg3 != ''%}
-<h1 class="text-center" style="color:green">{{msg3}}</h1>
-{%endif%}
 <div class="column is-4 is-offset-4">
     <h3 class="title">Login</h3>
     <div class="box">
-        <form method="POST" id="login">
+        <form method="POST" id="sign-in">
             <div class="field">
                 <div class="control">
                     <input class="input is-large" type="email" name="email" placeholder="Your Email">

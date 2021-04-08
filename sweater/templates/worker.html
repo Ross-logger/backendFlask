@@ -3,35 +3,40 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+      <style>
+  </style>
 </head>
-<form class="form-inline" id="work" method="post" action="">
+<form class="form-inline" id="work" method="post" >
   <div class="form-group mb-2">
-    <input type="text"  name="n" id="n">
+    <input type="text"  id="n" name="n">
         <input type="submit" class="btn btn-primary mb-2">
   </div>
 
 </form>
-<table class="table" id="works">
-  <thead>
+<table class="table" id="work">
+  <thead id="work">
     <tr>
         <th scope="col">Time</th>
         <th scope="col">N</th>
         <th scope="col">P</th>
         <th scope="col">Q</th>
-        <th scope="col">Status</th>
+        <th scope="col">Status<g/th>
         <th scope="col">Elapsed</th>
     </tr>
   </thead>
-  <tbody>
-    {% for time, n, p, q, status, start, finish in ans %}
+
+  <tbody id="work">
+    {% for row in ans %}
       <tr>
-          <td>{{ start }}</td>
-          <td>{{ n }}</td>
-          <td>{{ p }}</td>
-          <td>{{ q }}</td>
-          <td>{{ status }}</td>
-          <td>{{ start }} </td>
+          <td>{{ row.time }}</td>
+          <td>{{ row.n }}</td>
+          <td>{{ row.p }}</td>
+          <td>{{ row.q }}</td>
+          <td>{{ row.status }}</td>
+          <td>{{ row.time_ended }}</td>
       </tr>
+    {% else %}
+        <tr ><td class="table-warning"  bgcolor="yellow" colspan="6" ><em>no users found please type something aaaaaaaa</em></td></tr>
     {% endfor %}
   </tbody>
 </table>
