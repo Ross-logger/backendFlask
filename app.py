@@ -11,7 +11,6 @@ from sqlalchemy.orm import scoped_session
 import models
 from database import Session, engine
 
-site_keya = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 
 conn = psycopg2.connect(dbname='d6rbu51aggngta', user='oomzugrngzshgq',
                         password='07ddf913052409e8ffb5fe1451a28504244e269ee506ffab18818a6ed513edc9',
@@ -24,6 +23,10 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 models.Base.metadata.create_all(bind=engine)
 
 app.session = scoped_session(Session)
+
+site_keya = os.environ['site_keya']
+
+secret_keya = os.environ['secret_key']
 
 
 @app.teardown_appcontext
@@ -91,7 +94,7 @@ def is_human(captcha_response):
     if request.cookies.get('auto') == "True":
         secret_key = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
     else:
-        secret_key = '6Leig10aAAAAAGc9BuyWuqaSE5nLNja1HYkBPwmY'
+        secret_key = secret_keya
     captcha_data = {'secret': secret_key, 'response': captcha_response}
     response = requests.post('https://www.google.com/recaptcha/api/siteverify', data=captcha_data)
     response_text = json.loads(response.text)
